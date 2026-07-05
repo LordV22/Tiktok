@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  videobot:
+    build: .
+    container_name: videobot
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - ./temp:/app/temp
+      - ./output:/app/output
+      - ./logs:/app/logs

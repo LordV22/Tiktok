@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+.env
+*.mp4
+*.mov
+*.avi
+*.webm
+temp/
+output/
+logs/
+.DS_Store
+venv/
+.venv/
