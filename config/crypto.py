@@ -30,7 +30,6 @@ try:
     from cryptography.hazmat.primitives.ciphers.aead import AESGCM, ChaCha20Poly1305
     from cryptography.hazmat.primitives.asymmetric import rsa, padding
     from cryptography.hazmat.primitives import hashes, serialization
-    from cryptography.hazmat.primitives.kdf.argon2 import Argon2id
     from cryptography.hazmat.primitives.kdf.hkdf import HKDF
     from cryptography.hazmat.backends import default_backend
     HAS_CRYPTO = True
@@ -84,14 +83,26 @@ class Argon2KDF:
             salt = secrets.token_bytes(Argon2KDF.SALT_LENGTH)
 
         if HAS_CRYPTO:
-            kdf = Argon2id(
-                time_cost=Argon2KDF.TIME_COST,
-                memory_cost=Argon2KDF.MEMORY_COST,
-                parallelism=Argon2KDF.PARALLELISM,
-                hash_len=Argon2KDF.HASH_LENGTH,
-                salt=salt,
-            )
-            key = kdf.derive(password.encode())
+            try:
+                import argon2
+                kdf = argon2.low_level.hash_secret_raw(
+                    secret=password.encode(),
+                    salt=salt,
+                    time_cost=Argon2KDF.TIME_COST,
+                    memory_cost=Argon2KDF.MEMORY_COST,
+                    parallelism=Argon2KDF.PARALLELISM,
+                    hash_len=Argon2KDF.HASH_LENGTH,
+                    type=argon2.low_level.Type.ID,
+                )
+                key = kdf[:key_length]
+            except ImportError:
+                key = hashlib.pbkdf2_hmac(
+                    'sha256',
+                    password.encode(),
+                    salt,
+                    iterations=480000,
+                    dklen=key_length
+                )
         else:
             key = hashlib.pbkdf2_hmac(
                 'sha256',
