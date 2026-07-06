@@ -22,7 +22,6 @@ class Renderer:
                 audio_codec=self.config.audio_codec,
                 preset=self.config.preset,
                 bitrate=f"{self.config.crf}k",
-                pixel_format=self.config.pixel_format,
                 threads=4,
                 logger=None,
             )

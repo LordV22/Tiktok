@@ -280,6 +280,7 @@ class VideoBot:
             await query.edit_message_text("❌ Dados perdidos. Comece novamente.")
             return
 
+        await ctx.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.RECORD_VIDEO)
         await query.edit_message_text("⏳ *Criando vídeo...*", parse_mode="Markdown")
 
         try:
@@ -294,6 +295,7 @@ class VideoBot:
             )
 
             if result["success"]:
+                await ctx.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.UPLOAD_VIDEO)
                 with open(output, "rb") as f:
                     await query.message.reply_video(
                         video=f,
