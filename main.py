@@ -1,4 +1,15 @@
 import logging
+import os
+from pathlib import Path
+from dotenv import load_dotenv
+
+# Carregar .env antes de qualquer import
+env_path = Path(__file__).parent / ".env"
+if env_path.exists():
+    load_dotenv(env_path)
+else:
+    load_dotenv()
+
 from telegram.ext import ApplicationBuilder
 from config import settings
 from src.bots.telegram_bot import setup
