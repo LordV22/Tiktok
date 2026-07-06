@@ -25,7 +25,7 @@ class Watermark:
             text,
             fontsize=font_size,
             color="white",
-            font="Arial",
+            font="Liberation-Sans",
             bg_color="rgba(0,0,0,0.5)",
         )
 

@@ -115,7 +115,7 @@ class Pipeline:
 
             txt = TextClip(
                 text, fontsize=text_size, color=text_color,
-                font="Arial", stroke_color="black", stroke_width=3,
+                font="Liberation-Sans", stroke_color="black", stroke_width=3,
             )
 
             pos_map = {"center": "center", "top": ("center", 50), "bottom": ("center", "bottom")}
