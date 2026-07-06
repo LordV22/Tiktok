@@ -11,17 +11,20 @@ RUN apt-get update && apt-get install -y \
     fonts-liberation \
     && rm -rf /var/lib/apt/lists/*
 
-RUN cat > /etc/ImageMagick-6/policy.xml << 'POLICY'
-<policymap>
-  <policy domain="resource" name="memory" value="512MiB"/>
-  <policy domain="resource" name="map" value="512MiB"/>
-  <policy domain="resource" name="width" value="16KP"/>
-  <policy domain="resource" name="height" value="16KP"/>
-  <policy domain="resource" name="area" value="128MP"/>
-  <policy domain="resource" name="disk" value="1GiB"/>
-  <policy domain="module" rights="none" pattern="{PS1,PS2,PS3,EPS,PDF,XPS}" />
-</policymap>
-POLICY
+RUN mkdir -p /etc/ImageMagick-7 /etc/ImageMagick-6 && \
+    for dir in /etc/ImageMagick-7 /etc/ImageMagick-6; do \
+      if [ -d "$dir" ]; then \
+        printf '<policymap>\n\
+  <policy domain="resource" name="memory" value="512MiB"/>\n\
+  <policy domain="resource" name="map" value="512MiB"/>\n\
+  <policy domain="resource" name="width" value="16KP"/>\n\
+  <policy domain="resource" name="height" value="16KP"/>\n\
+  <policy domain="resource" name="area" value="128MP"/>\n\
+  <policy domain="resource" name="disk" value="1GiB"/>\n\
+  <policy domain="module" rights="none" pattern="{PS1,PS2,PS3,EPS,PDF,XPS}" />\n\
+</policymap>\n' > "$dir/policy.xml"; \
+      fi; \
+    done
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
