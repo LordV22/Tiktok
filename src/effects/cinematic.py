@@ -45,6 +45,8 @@ class CinematicEffects:
     def zoom_in(self, clip: VideoClip, factor: float = 1.5, duration: float = 2.0):
         def effect(get_frame, t):
             frame = get_frame(t)
+            if frame.dtype != np.uint8:
+                frame = frame.astype(np.uint8)
             progress = min(t / duration, 1.0)
             scale = 1 + (factor - 1) * progress
             h, w = frame.shape[:2]
@@ -58,6 +60,8 @@ class CinematicEffects:
     def zoom_out(self, clip: VideoClip, factor: float = 1.5, duration: float = 2.0):
         def effect(get_frame, t):
             frame = get_frame(t)
+            if frame.dtype != np.uint8:
+                frame = frame.astype(np.uint8)
             progress = min(t / duration, 1.0)
             scale = factor - (factor - 1) * progress
             h, w = frame.shape[:2]
@@ -91,6 +95,8 @@ class CinematicEffects:
     def blur(self, clip: VideoClip, intensity: float = 1.0):
         def effect(get_frame, t):
             frame = get_frame(t)
+            if frame.dtype != np.uint8:
+                frame = frame.astype(np.uint8)
             k = int(31 * intensity)
             k = max(1, k if k % 2 == 1 else k + 1)
             return cv2.GaussianBlur(frame, (k, k), 0)
@@ -100,6 +106,8 @@ class CinematicEffects:
         import random
         def effect(get_frame, t):
             frame = get_frame(t)
+            if frame.dtype != np.uint8:
+                frame = frame.astype(np.uint8)
             if random.random() < 0.15 * intensity:
                 h, w = frame.shape[:2]
                 for _ in range(random.randint(3, 8)):
@@ -114,6 +122,8 @@ class CinematicEffects:
     def vhs(self, clip: VideoClip, intensity: float = 1.0):
         def effect(get_frame, t):
             frame = get_frame(t)
+            if frame.dtype != np.uint8:
+                frame = frame.astype(np.uint8)
             noise = np.random.normal(0, 10 * intensity, frame.shape).astype(np.uint8)
             frame = cv2.add(frame, noise)
             h = frame.shape[0]
@@ -146,6 +156,8 @@ class CinematicEffects:
     def shake(self, clip: VideoClip, amplitude: int = 10):
         def effect(get_frame, t):
             frame = get_frame(t)
+            if frame.dtype != np.uint8:
+                frame = frame.astype(np.uint8)
             h, w = frame.shape[:2]
             dx = int(amplitude * np.sin(t * 15))
             dy = int(amplitude * np.cos(t * 12))
@@ -173,6 +185,8 @@ class CinematicEffects:
     def pixelate(self, clip: VideoClip, size: int = 10):
         def effect(get_frame, t):
             frame = get_frame(t)
+            if frame.dtype != np.uint8:
+                frame = frame.astype(np.uint8)
             h, w = frame.shape[:2]
             small = cv2.resize(frame, (w // size, h // size))
             return cv2.resize(small, (w, h), interpolation=cv2.INTER_NEAREST)
@@ -196,6 +210,8 @@ class CinematicEffects:
     def film_grain(self, clip: VideoClip, intensity: float = 1.0):
         def effect(get_frame, t):
             frame = get_frame(t)
+            if frame.dtype != np.uint8:
+                frame = frame.astype(np.uint8)
             noise = np.random.normal(0, 15 * intensity, frame.shape).astype(np.uint8)
             return cv2.add(frame, noise)
         return clip.fl(effect)
@@ -203,6 +219,8 @@ class CinematicEffects:
     def thermal(self, clip: VideoClip):
         def effect(get_frame, t):
             frame = get_frame(t)
+            if frame.dtype != np.uint8:
+                frame = frame.astype(np.uint8)
             gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
             thermal = cv2.applyColorMap(gray, cv2.COLORMAP_JET)
             return cv2.addWeighted(frame, 0.5, thermal, 0.5, 0)
@@ -216,6 +234,8 @@ class CinematicEffects:
     def emboss(self, clip: VideoClip, intensity: float = 0.5):
         def effect(get_frame, t):
             frame = get_frame(t)
+            if frame.dtype != np.uint8:
+                frame = frame.astype(np.uint8)
             gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
             kernel = np.array([[-2, -1, 0], [-1, 1, 1], [0, 1, 2]])
             embossed = cv2.filter2D(gray, -1, kernel)

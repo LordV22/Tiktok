@@ -232,19 +232,19 @@ class ParticleEffects:
         return clip.fl(effect)
 
     def _rotate_rect(self, x, y, size, angle):
-        pts = [
+        pts = np.array([
             [-size, -size],
             [size, -size],
             [size, size],
             [-size, size],
-        ]
+        ], dtype=np.float32)
         rad = math.radians(angle)
         cos_a = math.cos(rad)
         sin_a = math.sin(rad)
-        return [
-            (
-                int(x + px * cos_a - py * sin_a),
-                int(y + px * sin_a + py * cos_a),
-            )
+        rotated = np.array([
+            [px * cos_a - py * sin_a, px * sin_a + py * cos_a]
             for px, py in pts
-        ]
+        ])
+        rotated[:, 0] += x
+        rotated[:, 1] += y
+        return rotated.astype(np.int32)

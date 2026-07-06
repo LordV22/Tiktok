@@ -1,4 +1,4 @@
-from moviepy.editor import VideoClip, CompositeVideoClip
+from moviepy.editor import VideoClip, CompositeVideoClip, concatenate_videoclips
 from moviepy.video.compositing.transitions import crossfadein, crossfadeout
 from moviepy.video.fx.all import fadein, fadeout
 import numpy as np
@@ -31,12 +31,14 @@ class Transitions:
         return func(clip_a, clip_b, duration)
 
     def fade(self, a: VideoClip, b: VideoClip, d: float = 1.0) -> VideoClip:
-        b = crossfadein(b, d)
-        return a.concat(b, method="compose")
+        a_faded = crossfadeout(a, d)
+        b_faded = crossfadein(b, d)
+        return concatenate_videoclips([a_faded, b_faded], method="compose")
 
     def crossfade(self, a: VideoClip, b: VideoClip, d: float = 1.0) -> VideoClip:
-        b = crossfadein(b, d)
-        return a.concat(b, method="compose")
+        a_faded = crossfadeout(a, d)
+        b_faded = crossfadein(b, d)
+        return concatenate_videoclips([a_faded, b_faded], method="compose")
 
     def slide_left(self, a: VideoClip, b: VideoClip, d: float = 1.0) -> VideoClip:
         def effect(get_frame, t):
