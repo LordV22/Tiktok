@@ -1,5 +1,5 @@
 import numpy as np
-from moviepy.editor import VideoClip
+from moviepy.editor import VideoClip, CompositeVideoClip
 from pathlib import Path
 from typing import Optional
 import logging

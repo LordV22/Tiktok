@@ -1,5 +1,6 @@
 import hashlib
 import secrets
+import os
 import re
 from pathlib import Path
 from typing import Optional
@@ -55,5 +56,3 @@ class Security:
                 if age > max_age_hours * 3600:
                     f.unlink()
 
-
-import os

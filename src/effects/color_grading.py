@@ -55,7 +55,7 @@ class ColorGrading:
         return result.astype(np.uint8)
 
     def _noir_lut(self, frame: np.ndarray) -> np.ndarray:
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
         result = cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
         result = result.astype(np.float32)
         result = np.clip(result * 1.2, 0, 255)
@@ -124,7 +124,7 @@ class AdvancedColorGrading:
                 frame = (frame - 128) * factor + 128
 
             if saturation != 0:
-                gray = cv2.cvtColor(frame.astype(np.uint8), cv2.COLOR_BGR2GRAY)
+                gray = cv2.cvtColor(frame.astype(np.uint8), cv2.COLOR_RGB2GRAY)
                 gray = cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR).astype(np.float32)
                 frame = frame + (frame - gray) * saturation
 

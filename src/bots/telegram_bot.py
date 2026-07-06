@@ -213,7 +213,7 @@ class VideoBot:
             await self._receive_photo(update, ctx)
             return
 
-        await update.message.chat_action(ChatAction.TYPING)
+        await ctx.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
 
         result = self.ai.chat(text, user_id)
 

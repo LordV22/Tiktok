@@ -203,7 +203,7 @@ class CinematicEffects:
     def thermal(self, clip: VideoClip):
         def effect(get_frame, t):
             frame = get_frame(t)
-            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
             thermal = cv2.applyColorMap(gray, cv2.COLORMAP_JET)
             return cv2.addWeighted(frame, 0.5, thermal, 0.5, 0)
         return clip.fl(effect)
@@ -216,7 +216,7 @@ class CinematicEffects:
     def emboss(self, clip: VideoClip, intensity: float = 0.5):
         def effect(get_frame, t):
             frame = get_frame(t)
-            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
             kernel = np.array([[-2, -1, 0], [-1, 1, 1], [0, 1, 2]])
             embossed = cv2.filter2D(gray, -1, kernel)
             embossed = cv2.cvtColor(embossed, cv2.COLOR_GRAY2BGR)
