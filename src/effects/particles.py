@@ -57,7 +57,9 @@ class ParticleSystem:
         self.particles = [p for p in self.particles if p.update(dt)]
 
     def render(self, frame: np.ndarray) -> np.ndarray:
-        overlay = frame.copy()
+        if frame.dtype != np.uint8:
+            frame = frame.astype(np.uint8)
+        overlay = np.require(frame.copy(), dtype=np.uint8, requirements=['C_CONTIGUOUS'])
         for p in self.particles:
             alpha = p.get_alpha()
             color = tuple(int(c * alpha) for c in p.color)
@@ -77,6 +79,8 @@ class ParticleEffects:
 
         def effect(get_frame, t):
             frame = get_frame(t)
+            if frame.dtype != np.uint8:
+                frame = frame.astype(np.uint8)
             ps = ParticleSystem(w, h)
 
             if random.random() < 0.3:
@@ -106,7 +110,9 @@ class ParticleEffects:
 
         def effect(get_frame, t):
             frame = get_frame(t)
-            overlay = frame.copy()
+            if frame.dtype != np.uint8:
+                frame = frame.astype(np.uint8)
+            overlay = np.require(frame.copy(), dtype=np.uint8, requirements=["C_CONTIGUOUS"])
 
             for _ in range(count):
                 x = random.randint(0, w)
@@ -125,7 +131,9 @@ class ParticleEffects:
 
         def effect(get_frame, t):
             frame = get_frame(t)
-            overlay = frame.copy()
+            if frame.dtype != np.uint8:
+                frame = frame.astype(np.uint8)
+            overlay = np.require(frame.copy(), dtype=np.uint8, requirements=["C_CONTIGUOUS"])
 
             for _ in range(20):
                 fx = cx + random.uniform(-30, 30)
@@ -148,7 +156,9 @@ class ParticleEffects:
 
         def effect(get_frame, t):
             frame = get_frame(t)
-            overlay = frame.copy()
+            if frame.dtype != np.uint8:
+                frame = frame.astype(np.uint8)
+            overlay = np.require(frame.copy(), dtype=np.uint8, requirements=["C_CONTIGUOUS"])
 
             for _ in range(count):
                 x = random.randint(0, w)
@@ -174,7 +184,9 @@ class ParticleEffects:
 
         def effect(get_frame, t):
             frame = get_frame(t)
-            overlay = frame.copy()
+            if frame.dtype != np.uint8:
+                frame = frame.astype(np.uint8)
+            overlay = np.require(frame.copy(), dtype=np.uint8, requirements=["C_CONTIGUOUS"])
 
             for _ in range(15):
                 sx = cx + random.uniform(-50, 50)
@@ -194,7 +206,9 @@ class ParticleEffects:
 
         def effect(get_frame, t):
             frame = get_frame(t)
-            overlay = frame.copy()
+            if frame.dtype != np.uint8:
+                frame = frame.astype(np.uint8)
+            overlay = np.require(frame.copy(), dtype=np.uint8, requirements=["C_CONTIGUOUS"])
 
             for i in range(count):
                 x = int((i * 73 + t * 30) % w)
@@ -216,7 +230,9 @@ class ParticleEffects:
 
         def effect(get_frame, t):
             frame = get_frame(t)
-            overlay = frame.copy()
+            if frame.dtype != np.uint8:
+                frame = frame.astype(np.uint8)
+            overlay = np.require(frame.copy(), dtype=np.uint8, requirements=["C_CONTIGUOUS"])
 
             for _ in range(count):
                 x = random.randint(0, w)

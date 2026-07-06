@@ -75,6 +75,8 @@ class CinematicEffects:
     def pan_left(self, clip: VideoClip, speed: float = 50):
         def effect(get_frame, t):
             frame = get_frame(t)
+            if frame.dtype != np.uint8:
+                frame = frame.astype(np.uint8)
             offset = int(speed * t) % frame.shape[1]
             return np.roll(frame, -offset, axis=1)
         return clip.fl(effect)
@@ -82,6 +84,8 @@ class CinematicEffects:
     def pan_right(self, clip: VideoClip, speed: float = 50):
         def effect(get_frame, t):
             frame = get_frame(t)
+            if frame.dtype != np.uint8:
+                frame = frame.astype(np.uint8)
             offset = int(speed * t) % frame.shape[1]
             return np.roll(frame, offset, axis=1)
         return clip.fl(effect)
@@ -135,6 +139,8 @@ class CinematicEffects:
     def chromatic(self, clip: VideoClip, offset: int = 6):
         def effect(get_frame, t):
             frame = get_frame(t)
+            if frame.dtype != np.uint8:
+                frame = frame.astype(np.uint8)
             result = frame.copy()
             result[:, :, 0] = np.roll(frame[:, :, 0], offset, axis=1)
             result[:, :, 2] = np.roll(frame[:, :, 2], -offset, axis=1)
@@ -168,6 +174,8 @@ class CinematicEffects:
     def rgb_split(self, clip: VideoClip, offset: int = 8):
         def effect(get_frame, t):
             frame = get_frame(t)
+            if frame.dtype != np.uint8:
+                frame = frame.astype(np.uint8)
             result = frame.copy()
             result[:, :, 0] = np.roll(frame[:, :, 0], offset, axis=1)
             result[:, :, 2] = np.roll(frame[:, :, 2], -offset, axis=1)
@@ -176,7 +184,10 @@ class CinematicEffects:
 
     def scanlines(self, clip: VideoClip, spacing: int = 4):
         def effect(get_frame, t):
-            frame = get_frame(t).copy()
+            frame = get_frame(t)
+            if frame.dtype != np.uint8:
+                frame = frame.astype(np.uint8)
+            frame = frame.copy()
             for y in range(0, frame.shape[0], spacing):
                 frame[y] = np.clip(frame[y].astype(np.int16) - 15, 0, 255).astype(np.uint8)
             return frame
@@ -194,13 +205,16 @@ class CinematicEffects:
 
     def light_leak(self, clip: VideoClip, color: tuple = (255, 200, 100)):
         def effect(get_frame, t):
-            frame = get_frame(t).astype(np.float32)
+            frame = get_frame(t)
+            if frame.dtype != np.uint8:
+                frame = frame.astype(np.uint8)
+            frame = frame.astype(np.float32)
             h, w = frame.shape[:2]
             Y, X = np.ogrid[:h, :w]
             cy, cx = h * 0.7, w * 0.8
             dist = np.sqrt((X - cx) ** 2 + (Y - cy) ** 2)
             max_d = np.sqrt(cx**2 + cy**2)
-            leak = np.clip(1 - dist / max_d, 0, 1)[:, :, np.newaxis]
+            leak = np.clip(1 - dist / max_d, 0, 1)
             frame[:, :, 0] = np.clip(frame[:, :, 0] + color[0] * leak * 0.4, 0, 255)
             frame[:, :, 1] = np.clip(frame[:, :, 1] + color[1] * leak * 0.4, 0, 255)
             frame[:, :, 2] = np.clip(frame[:, :, 2] + color[2] * leak * 0.4, 0, 255)
@@ -228,7 +242,10 @@ class CinematicEffects:
 
     def invert(self, clip: VideoClip):
         def effect(get_frame, t):
-            return 255 - get_frame(t)
+            frame = get_frame(t)
+            if frame.dtype != np.uint8:
+                frame = frame.astype(np.uint8)
+            return 255 - frame
         return clip.fl(effect)
 
     def emboss(self, clip: VideoClip, intensity: float = 0.5):

@@ -24,6 +24,7 @@ class Renderer:
                 bitrate=f"{self.config.crf}k",
                 threads=4,
                 logger=None,
+                ffmpeg_params=["-pix_fmt", "yuv420p"],
             )
 
             return {

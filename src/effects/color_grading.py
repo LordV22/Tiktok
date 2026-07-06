@@ -23,6 +23,8 @@ class ColorGrading:
 
         def effect(get_frame, t):
             frame = get_frame(t)
+            if frame.dtype != np.uint8:
+                frame = frame.astype(np.uint8)
             graded = lut_func(frame)
             return cv2.addWeighted(frame, 1 - intensity, graded, intensity, 0)
 
@@ -114,7 +116,10 @@ class AdvancedColorGrading:
         highlights: float = 0,
     ) -> VideoClip:
         def effect(get_frame, t):
-            frame = get_frame(t).astype(np.float32)
+            frame = get_frame(t)
+            if frame.dtype != np.uint8:
+                frame = frame.astype(np.uint8)
+            frame = frame.astype(np.float32)
 
             if exposure != 0:
                 frame = frame * (1 + exposure)

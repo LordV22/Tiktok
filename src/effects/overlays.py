@@ -22,7 +22,6 @@ class OverlayEffects:
             Y, X = np.ogrid[:h, :w]
             dist = np.sqrt((X - pos[0]) ** 2 + (Y - pos[1]) ** 2)
             flare = np.exp(-dist / 150) * intensity
-            flare = flare[:, :, np.newaxis]
             frame[:, :, 0] = np.clip(frame[:, :, 0] + color[0] * flare, 0, 255)
             frame[:, :, 1] = np.clip(frame[:, :, 1] + color[1] * flare, 0, 255)
             frame[:, :, 2] = np.clip(frame[:, :, 2] + color[2] * flare, 0, 255)
@@ -53,7 +52,6 @@ class OverlayEffects:
 
             dist = np.sqrt((X - center_x) ** 2 + (Y - center_y) ** 2)
             leak = np.exp(-dist / (max(w, h) / 3)) * intensity
-            leak = leak[:, :, np.newaxis]
 
             frame[:, :, 0] = np.clip(frame[:, :, 0] + color[0] * leak, 0, 255)
             frame[:, :, 1] = np.clip(frame[:, :, 1] + color[1] * leak, 0, 255)

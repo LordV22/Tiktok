@@ -202,6 +202,16 @@ class Pipeline:
     ) -> VideoClip:
         w, h = resolution
 
+        pos_map = {
+            "center": ("center", "center"),
+            "top": ("center", str(int(h * 0.3))),
+            "bottom": ("center", str(int(h * 0.7))),
+        }
+        pos = pos_map.get(position, ("center", "center"))
+
+        if animation == "typewriter":
+            return self._animate_typewriter(text, duration, resolution, position, font_size, text_color)
+
         try:
             txt = TextClip(
                 text,
@@ -220,27 +230,29 @@ class Pipeline:
                 stroke_width=2,
             )
 
-        pos_map = {
-            "center": "center",
-            "top": ("center", h * 0.3),
-            "bottom": ("center", h * 0.7),
-        }
-        txt = txt.set_position(pos_map.get(position, "center"))
+        txt = txt.set_position(pos)
         txt = txt.set_duration(duration)
 
-        if animation == "typewriter":
-            txt = self._animate_typewriter(text, duration, resolution, position, font_size, text_color)
-        elif animation == "fade":
-            fade_dur = min(0.5, duration * 0.2)
+        if animation == "fade":
+            fade_dur = min(0.8, duration * 0.25)
             txt = txt.crossfadein(fade_dur).crossfadeout(fade_dur)
         elif animation == "slide":
-            txt = txt.set_position(lambda t: (w * (1 - t / duration) - w * 0.1, txt.get_position(t)[1] if isinstance(txt.get_position(t), tuple) else "center"))
+            start_x = -txt.size[0] if txt.size else -200
+            txt = txt.set_position(lambda t, sx=start_x: (
+                sx + (w - sx) * min(t / 1.0, 1.0),
+                txt.get_position(t)[1] if isinstance(txt.get_position(t), tuple) else "center"
+            ))
         elif animation == "bounce":
-            txt = txt.set_position(lambda t: (txt.get_position(t)[0] if isinstance(txt.get_position(t), tuple) else "center", txt.get_position(t)[1] if isinstance(txt.get_position(t), tuple) else "center" ))
-        elif animation == "wave":
+            base_y = int(pos[1]) if pos[1] != "center" else h // 2
             txt = txt.set_position(lambda t: (
                 txt.get_position(t)[0] if isinstance(txt.get_position(t), tuple) else "center",
-                (h // 2 + int(10 * np.sin(t * 5))) if position == "center" else (h * 0.3 if position == "top" else h * 0.7)
+                base_y - int(abs(np.sin(t * 4)) * 30)
+            ))
+        elif animation == "wave":
+            base_y = int(pos[1]) if pos[1] != "center" else h // 2
+            txt = txt.set_position(lambda t: (
+                txt.get_position(t)[0] if isinstance(txt.get_position(t), tuple) else "center",
+                base_y + int(10 * np.sin(t * 5))
             ))
 
         if subtitle:
@@ -261,9 +273,10 @@ class Pipeline:
                     stroke_color="black",
                     stroke_width=1,
                 )
-            sub = sub.set_position(("center", h * 0.6 if position == "center" else h * 0.75))
+            sub_y = int(h * 0.6) if position == "center" else int(h * 0.75)
+            sub = sub.set_position(("center", sub_y))
             sub = sub.set_duration(duration)
-            sub = sub.crossfadein(0.3)
+            sub = sub.crossfadein(0.5)
             return CompositeVideoClip([txt, sub], size=resolution)
 
         return txt
@@ -272,29 +285,34 @@ class Pipeline:
         self, text: str, duration: float, resolution: tuple,
         position: str, font_size: int, text_color: str,
     ) -> VideoClip:
-        import cv2
-        w, h = resolution
-        chars_per_sec = len(text) / (duration * 0.7)
+        try:
+            txt = TextClip(
+                text,
+                fontsize=font_size,
+                color=text_color,
+                font="Liberation-Sans",
+                stroke_color="black",
+                stroke_width=2,
+            )
+        except Exception:
+            txt = TextClip(
+                text,
+                fontsize=font_size,
+                color=text_color,
+                stroke_color="black",
+                stroke_width=2,
+            )
 
-        def make_frame(t):
-            frame = np.zeros((h, w, 3), dtype=np.uint8)
-            visible = min(len(text), int(t * chars_per_sec))
-            visible_text = text[:visible]
-
-            if visible_text:
-                font = cv2.FONT_HERSHEY_SIMPLEX
-                font_scale = font_size / 40
-                thickness = 2
-                (tw, th), _ = cv2.getTextSize(visible_text, font, font_scale, thickness)
-
-                x = (w - tw) // 2
-                y = (h + th) // 2
-
-                cv2.putText(frame, visible_text, (x, y), font, font_scale, (255, 255, 255), thickness)
-
-            return frame
-
-        return VideoClip(make_frame, duration=duration).set_fps(30)
+        pos_map = {
+            "center": ("center", "center"),
+            "top": ("center", str(int(resolution[1] * 0.3))),
+            "bottom": ("center", str(int(resolution[1] * 0.7))),
+        }
+        txt = txt.set_position(pos_map.get(position, ("center", "center")))
+        txt = txt.set_duration(duration)
+        fade_dur = min(0.3, duration * 0.1)
+        txt = txt.crossfadein(fade_dur)
+        return txt
 
     def _apply_cinematic_effect(self, clip: VideoClip, effect_name: str) -> VideoClip:
         func = self.cinematic.get(effect_name)
