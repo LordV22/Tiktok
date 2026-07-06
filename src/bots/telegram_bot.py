@@ -213,6 +213,14 @@ class VideoBot:
             await self._receive_photo(update, ctx)
             return
 
+        if len(text) > 3000:
+            text = text[:3000]
+            await update.message.reply_text(
+                "📝 Texto muito longo! Usei apenas os primeiros 3000 caracteres.\n\n"
+                "💡 *Dica:* Descreva o vídeo de forma mais resumida.",
+                parse_mode="Markdown",
+            )
+
         await ctx.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
 
         result = self.ai.chat(text, user_id)
@@ -221,9 +229,13 @@ class VideoBot:
             data = result["data"]
             ctx.user_data["video_data"] = data
 
+            understanding = data.get('understanding', '')
+            if len(understanding) > 500:
+                understanding = understanding[:500] + "..."
+
             msg = (
                 f"✅ *Entendi!*\n\n"
-                f"📝 {data.get('understanding', '')}\n\n"
+                f"📝 {understanding}\n\n"
                 f"🎬 *Plano:*\n"
                 f"• Duração: {data.get('duration', '?')}s\n"
                 f"• Estilo: {data.get('style', '?')}\n"
@@ -237,6 +249,9 @@ class VideoBot:
                 for s in suggestions[:3]:
                     msg += f"• {s}\n"
 
+            if len(msg) > 4000:
+                msg = msg[:4000] + "\n\n..."
+
             kb = InlineKeyboardMarkup([
                 [
                     InlineKeyboardButton("✅ Criar", callback_data="confirm"),
@@ -247,8 +262,11 @@ class VideoBot:
 
             await update.message.reply_text(msg, reply_markup=kb, parse_mode="Markdown")
         else:
+            error_msg = result.get('error', 'Desconhecido')
+            if len(error_msg) > 500:
+                error_msg = error_msg[:500] + "..."
             await update.message.reply_text(
-                f"❌ Erro: {result.get('error', 'Desconhecido')}\n\nTente novamente."
+                f"❌ Erro: {error_msg}\n\nTente novamente."
             )
 
     async def _receive_photo(self, update: Update, ctx: ContextTypes.DEFAULT_TYPE):
@@ -297,14 +315,15 @@ class VideoBot:
             if result["success"]:
                 await ctx.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.UPLOAD_VIDEO)
                 with open(output, "rb") as f:
+                    caption = (
+                        f"✅ *Vídeo Criado!*\n\n"
+                        f"🎬 Duração: {data.get('duration', '?')}s\n"
+                        f"🎨 Estilo: {data.get('style', '?')}\n"
+                        f"⏱️ {result.get('processing_time', 0):.1f}s"
+                    )
                     await query.message.reply_video(
                         video=f,
-                        caption=(
-                            f"✅ *Vídeo Criado!*\n\n"
-                            f"🎬 Duração: {data.get('duration', '?')}s\n"
-                            f"🎨 Estilo: {data.get('style', '?')}\n"
-                            f"⏱️ {result.get('processing_time', 0):.1f}s"
-                        ),
+                        caption=caption,
                         parse_mode="Markdown",
                     )
                 self.files.safe_delete(output)
