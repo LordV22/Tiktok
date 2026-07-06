@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y \
     fonts-liberation \
     && rm -rf /var/lib/apt/lists/*
 
-RUN cat > /etc/ImageMagick-6/policy.xml << 'POLICY'
+RUN cat > /etc/ImageMagick-7/policy.xml << 'POLICY'
 <policymap>
   <policy domain="resource" name="memory" value="512MiB"/>
   <policy domain="resource" name="map" value="512MiB"/>
